@@ -42,4 +42,5 @@ A web application designed to track daily calorie consumption, set calorie goals
    git clone https://github.com/Shani871/calorie-tracker.git
    '
    ```
-   https://github.com/Shani871/calorie-tracker/blob/main/templates/myapp/Screenshot%202025-01-21%20at%2011.06.19%E2%80%AFPM.png
+   <img src=" https://github.com/Shani871/calorie-tracker/blob/main/templates/myapp/Screenshot%202025-01-21%20at%2011.06.19%E2%80%AFPM.png" alt="Dashboard Screenshot" width="600">
+  
