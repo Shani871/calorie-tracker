@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Calorie Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .form-control,
+        .form-select {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            color: #e0e0e0 !important;
+            border-radius: 12px !important;
+            padding: 0.75rem 1rem !important;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background: rgba(255, 255, 255, 0.12) !important;
+            border-color: #667eea !important;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2) !important;
+        }
+
+        .form-label {
+            color: #b0b0b0;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #e0e0e0;
+            border-radius: 12px;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+        }
+
+        .btn-outline-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .macro-bar {
+            height: 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .macro-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .bmi-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .navbar {
+            background: rgba(0, 0, 0, 0.3) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: 900;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark mb-5 sticky-top p-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+                <span style="font-size: 1.8rem;">🥗</span>
+                <span>CALORIE TRACKER</span>
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <a href="{% url 'index' %}" class="nav-link">Dashboard</a>
+                <a href="{% url 'profile' %}" class="nav-link fw-bold">Profile</a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm rounded-pill px-3">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        <!-- Feedback Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Profile Summary Card -->
+        <div class="summary-card">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2 fw-black">{{ request.user.username }}'s Profile</h1>
+                    <p class="mb-0 opacity-75">Personalized nutrition tracking based on your health metrics</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <div class="stat-value">{{ profile.calorie_goal }}</div>
+                    <div class="stat-label">Daily Calorie Target</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Health Metrics Cards -->
+            <div class="col-md-3">
+                <div class="metric-card text-center">
+                    <div class="stat-label mb-2">BMR</div>
+                    <div class="stat-value" style="font-size: 2rem; color: #667eea;">{{ bmr }}</div>
+                    <small class="text-muted">kcal/day</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card text-center">
+                    <div class="stat-label mb-2">TDEE</div>
+                    <div class="stat-value" style="font-size: 2rem; color: #f093fb;">{{ tdee }}</div>
+                    <small class="text-muted">kcal/day</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card text-center">
+                    <div class="stat-label mb-2">BMI</div>
+                    <div class="stat-value" style="font-size: 2rem; color: #4facfe;">{{ bmi }}</div>
+                    <small class="text-muted">kg/m²</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card text-center">
+                    <div class="stat-label mb-2">Goal</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #43e97b;">
+                        {{ profile.get_goal_type_display }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Form -->
+        <div class="profile-card mt-4">
+            <form method="POST" id="profileForm">
+                {% csrf_token %}
+                <h3 class="mb-4 fw-bold">Personal Information</h3>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Gender</label>
+                        <select name="gender" class="form-select" id="gender">
+                            <option value="M" {% if profile.gender == 'M' %}selected{% endif %}>Male</option>
+                            <option value="F" {% if profile.gender == 'F' %}selected{% endif %}>Female</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Age (years)</label>
+                        <input type="number" name="age" class="form-control" value="{{ profile.age }}" id="age" min="10"
+                            max="120" required>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Height (cm)</label>
+                        <input type="number" step="0.1" name="height" class="form-control" value="{{ profile.height }}"
+                            id="height" min="100" max="250" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" step="0.1" name="weight" class="form-control" value="{{ profile.weight }}"
+                            id="weight" min="30" max="300" required>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Activity Level</label>
+                        <select name="activity_level" class="form-select" id="activity">
+                            {% for value, label in profile.ACTIVITY_CHOICES %}
+                            <option value="{{ value }}" {% if profile.activity_level  == value %}selected{% endif %}>{{
+                                label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Health Goal</label>
+                        <select name="goal_type" class="form-select" id="goal">
+                            {% for value, label in profile.GOAL_CHOICES %}
+                            <option value="{{ value }}" {% if profile.goal_type  == value %}selected{% endif %}>{{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <h3 class="mb-4 fw-bold mt-5">Macronutrient Targets</h3>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="stat-label">Protein</span>
+                                <span class="fw-bold" style="color: #667eea;" id="proteinPct">{{
+                                    profile.protein_goal_pct }}%</span>
+                            </div>
+                            <div class="macro-bar">
+                                <div class="macro-fill"
+                                    style="background: linear-gradient(90deg, #667eea, #764ba2); width: {{ profile.protein_goal_pct }}%;"
+                                    id="proteinBar"></div>
+                            </div>
+                            <small class="text-muted mt-2 d-block" id="proteinGrams">0g</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="stat-label">Carbs</span>
+                                <span class="fw-bold" style="color: #4facfe;" id="carbsPct">{{ profile.carbs_goal_pct
+                                    }}%</span>
+                            </div>
+                            <div class="macro-bar">
+                                <div class="macro-fill"
+                                    style="background: linear-gradient(90deg, #4facfe, #00f2fe); width: {{ profile.carbs_goal_pct }}%;"
+                                    id="carbsBar"></div>
+                            </div>
+                            <small class="text-muted mt-2 d-block" id="carbsGrams">0g</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="stat-label">Fats</span>
+                                <span class="fw-bold" style="color: #f093fb;" id="fatsPct">{{ profile.fats_goal_pct
+                                    }}%</span>
+                            </div>
+                            <div class="macro-bar">
+                                <div class="macro-fill"
+                                    style="background: linear-gradient(90deg, #f093fb, #f5576c); width: {{ profile.fats_goal_pct }}%;"
+                                    id="fatsBar"></div>
+                            </div>
+                            <small class="text-muted mt-2 d-block" id="fatsGrams">0g</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 justify-content-end mt-5">
+                    <a href="{% url 'index' %}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">💾 Save Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Real-time calculation preview
+        const genderInput = document.getElementById('gender');
+        const ageInput = document.getElementById('age');
+        const heightInput = document.getElementById('height');
+        const weightInput = document.getElementById('weight');
+        const activityInput = document.getElementById('activity');
+        const goalInput = document.getElementById('goal');
+
+        function calculatePreview() {
+            const gender = genderInput.value;
+            const age = parseInt(ageInput.value) || 25;
+            const height = parseFloat(heightInput.value) || 170;
+            const weight = parseFloat(weightInput.value) || 70;
+            const activity = parseFloat(activityInput.value) || 1.2;
+            const goal = goalInput.value;
+
+            // Calculate BMR
+            let bmr;
+            if (gender === 'M') {
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+            } else {
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+            }
+
+            // Calculate TDEE
+            const tdee = bmr * activity;
+
+            // Adjust for goal
+            let calories, proteinPct, carbsPct, fatsPct;
+            if (goal === 'loss') {
+                calories = tdee - 500;
+                proteinPct = 35;
+                carbsPct = 35;
+                fatsPct = 30;
+            } else if (goal === 'gain') {
+                calories = tdee + 300;
+                proteinPct = 30;
+                carbsPct = 45;
+                fatsPct = 25;
+            } else {
+                calories = tdee;
+                proteinPct = 25;
+                carbsPct = 50;
+                fatsPct = 25;
+            }
+
+            // Update macro displays
+            const proteinGrams = Math.round((calories * (proteinPct / 100)) / 4);
+            const carbsGrams = Math.round((calories * (carbsPct / 100)) / 4);
+            const fatsGrams = Math.round((calories * (fatsPct / 100)) / 9);
+
+            document.getElementById('proteinPct').textContent = proteinPct + '%';
+            document.getElementById('carbsPct').textContent = carbsPct + '%';
+            document.getElementById('fatsPct').textContent = fatsPct + '%';
+
+            document.getElementById('proteinBar').style.width = proteinPct + '%';
+            document.getElementById('carbsBar').style.width = carbsPct + '%';
+            document.getElementById('fatsBar').style.width = fatsPct + '%';
+
+            document.getElementById('proteinGrams').textContent = proteinGrams + 'g';
+            document.getElementById('carbsGrams').textContent = carbsGrams + 'g';
+            document.getElementById('fatsGrams').textContent = fatsGrams + 'g';
+        }
+
+        // Attach event listeners
+        [genderInput, ageInput, heightInput, weightInput, activityInput, goalInput].forEach(input => {
+            input.addEventListener('input', calculatePreview);
+            input.addEventListener('change', calculatePreview);
+        });
+
+        // Initial calculation
+        calculatePreview();
+    </script>
+</body>
+
+</html>

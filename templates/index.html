@@ -1,135 +1,501 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calorie Tracker</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <title>Dashboard - Calorie Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-light">
 
-    <div class="container">
-        <!-- Navbar -->
-        <nav class="navbar navbar-dark bg-primary mb-4">
-            <span class="navbar-brand mx-auto">Calorie Tracker</span>
-        </nav>
+<body>
 
-        <!-- Calorie Goal Progress -->
-        <div class="mb-4">
-            <h4>Calorie Goal</h4>
-            <div class="progress" style="height: 30px; border-radius: 15px; overflow: hidden;">
-                <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="2000"></div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light glass-nav mb-5 sticky-top p-3">
+        <div class="container d-flex justify-content-between">
+            <a class="navbar-brand fw-extrabold d-flex align-items-center gap-2" href="/">
+                <span style="font-size: 1.8rem;">🥗</span>
+                <span class="ls-1" style="font-weight: 900; color: #064e3b;">CALORIE <span
+                        style="color: #10b981;">TRACKER</span></span>
+            </a>
+
+            <div class="d-flex align-items-center gap-3">
+                <a href="{% url 'profile' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">👤 Profile</a>
+                <div class="user-badge px-3 py-1 bg-white rounded-pill shadow-sm border small d-none d-md-block">
+                    <span class="text-muted">Hello,</span> <span class="fw-bold" style="color: #10b981;">{{
+                        request.user.username }}</span>
+                </div>
+                <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm rounded-pill px-3">Logout</a>
             </div>
         </div>
+    </nav>
 
-        <!-- Add Food Section -->
-        <div class="card mb-4 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Add Food Item</h5>
-                <form method="POST" class="form-inline">
-                    {% csrf_token %}
-                    <div class="form-group mb-2">
-                        <label for="food_consumed" class="mr-3"><b>Select Food:</b></label>
-                        <select class="form-control mr-3" name="food_consumed" id="food_consumed" style="width: 300px;">
-                            {% for food in foods %}
-                                <option value="{{food.name}}">{{food.name}}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit" class="btn btn-success">Add</button>
-                    </div>
+    <div class="container mb-5">
+        <!-- Feedback Messages (Toasts) -->
+        {% if messages %}
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            {% for message in messages %}
+            <div class="toast show glass-card border-0" role="alert">
+                <div class="toast-header bg-transparent text-dark border-bottom border-white-10">
+                    <strong class="me-auto">Notification</strong>
+                    <button type="button" class="btn-close " data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body text-dark">
+                    {{ message }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="row g-4">
+            <!-- Header & Date Filter -->
+            <div
+                class="col-12 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 animate-up">
+                <div>
+                    <h2 class="fw-black mb-0" style="color: #064e3b; letter-spacing: -1px; font-weight: 900;">Health
+                        Dashboard</h2>
+                    <p class="text-muted small fw-medium mb-0">Track your nutrition and progress towards wellness.</p>
+                </div>
+                <form class="d-flex align-items-center gap-3 bg-white p-2 rounded-pill shadow-sm border px-3"
+                    method="GET">
+                    <label class="text-primary small fw-black text-uppercase ls-1 mb-0"
+                        style="font-weight: 800; font-size: 0.7rem;">📅 DATE</label>
+                    <input type="date" name="date" class="form-control form-control-sm border-0 bg-transparent p-0"
+                        style="font-weight: 700; color: #064e3b; min-width: 130px; box-shadow: none !important;"
+                        value="{{ selected_date }}" onchange="this.form.submit()">
                 </form>
             </div>
-        </div>
 
-        <div class="row">
-            <!-- Food Consumption Table -->
-            <div class="col-md-7">
-                <h5 class="mb-3">Today's Consumption</h5>
-                <table id="table" class="table table-bordered table-hover">
-                    <thead class="bg-primary text-white">
-                        <tr>
-                            <th>Food Item</th>
-                            <th>Carbs (g)</th>
-                            <th>Protein (g)</th>
-                            <th>Fats (g)</th>
-                            <th>Calories (Kcal)</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for c in consumed_food %}
-                        <tr>
-                            <td>{{c.food_consumed.name}}</td>
-                            <td>{{c.food_consumed.carbs}}</td>
-                            <td>{{c.food_consumed.protein}}</td>
-                            <td>{{c.food_consumed.fats}}</td>
-                            <td>{{c.food_consumed.calories}}</td>
-                            <td><a href="{% url 'delete' c.id %}" class="btn btn-danger btn-sm">Remove</a></td>
-                        </tr>
-                        {% endfor %}
-                        <tr>
-                            <td><b>Total</b></td>
-                            <td id="totalCarbs"></td>
-                            <td id="totalProtien"></td>
-                            <td id="totalFats"></td>
-                            <td id="totalCalories"></td>
-                            <td></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Macronutrients Chart -->
-            <div class="col-md-5">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Macronutrients Breakdown</h5>
+            <!-- Calorie Goal Section -->
+            <div class="col-lg-12">
+                <div class="glass-card p-4 animate-up">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0 fw-bold">Daily Calorie Progress</h4>
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#goalModal">Settings</button>
                     </div>
-                    <div class="card-body">
-                        <canvas id="myChart" width="400" height="400"></canvas>
+                    <div class="progress mb-2">
+                        <div class="progress-bar" role="progressbar" style="width: {{ cal_percent }}%;"
+                            aria-valuenow="{{ total_calories }}" aria-valuemin="0"
+                            aria-valuemax="{{ profile.calorie_goal }}"></div>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span>Consumed: <b>{{ total_calories }}</b> Kcal</span>
+                        <span>Goal: <b>{{ profile.calorie_goal }}</b> Kcal</span>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <script>
-        // JavaScript logic to calculate and update totals
-        var table = document.getElementById("table");
-        var carbs = 0, protein = 0, fats = 0, calories = 0;
+            <!-- Stats Overview -->
+            <div class="col-md-3">
+                <div class="glass-card stats-card animate-up"
+                    style="animation-delay: 0.1s; border-left: 5px solid #10b981;">
+                    <span class="stats-label">Carbs (Goal: {{ carbs_goal_grams }}g)</span>
+                    <div class="stats-value" style="color: #10b981;">{{ total_carbs }}g</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card stats-card animate-up"
+                    style="animation-delay: 0.2s; border-left: 5px solid #6366f1;">
+                    <span class="stats-label">Protein (Goal: {{ protein_goal_grams }}g)</span>
+                    <div class="stats-value" style="color: #6366f1;">{{ total_protein }}g</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card stats-card animate-up"
+                    style="animation-delay: 0.3s; border-left: 5px solid #f59e0b;">
+                    <span class="stats-label">Fats (Goal: {{ fats_goal_grams }}g)</span>
+                    <div class="stats-value" style="color: #f59e0b;">{{ total_fats }}g</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card stats-card animate-up"
+                    style="animation-delay: 0.4s; border-left: 5px solid #ef4444;">
+                    <span class="stats-label">Calories Consumed</span>
+                    <div class="stats-value" style="color: #ef4444;">{{ total_calories }} <small
+                            class="fw-medium text-muted h6">kcal</small></div>
+                </div>
+            </div>
 
-        for (var i = 1; i < table.rows.length - 1; i++) {
-            carbs += parseFloat(table.rows[i].cells[1].innerHTML) || 0;
-            protein += parseFloat(table.rows[i].cells[2].innerHTML) || 0;
-            fats += parseFloat(table.rows[i].cells[3].innerHTML) || 0;
-            calories += parseFloat(table.rows[i].cells[4].innerHTML) || 0;
-        }
+            <!-- Add Food Section -->
+            <div class="col-lg-7">
+                <div class="glass-card p-4 animate-up h-100" style="animation-delay: 0.5s;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">Log Consumption</h5>
+                        <button class="btn btn-link text-primary text-decoration-none p-0 small" data-bs-toggle="modal"
+                            data-bs-target="#customFoodModal">+ Add New Food to DB</button>
+                    </div>
 
-        document.getElementById("totalCarbs").innerHTML = `${carbs.toFixed(2)} g`;
-        document.getElementById("totalProtien").innerHTML = `${protein.toFixed(2)} g`;
-        document.getElementById("totalFats").innerHTML = `${fats.toFixed(2)} g`;
-        document.getElementById("totalCalories").innerHTML = `${calories.toFixed(2)} Kcal`;
+                    <form method="POST" class="row g-3">
+                        {% csrf_token %}
+                        <div class="col-md-6">
+                            <label class="small text-uppercase fw-bold ls-1 mb-2">Select Food</label>
+                            <select class="form-select" name="food_consumed" required>
+                                <option value="" selected disabled>Select food item...</option>
+                                {% for food in foods %}
+                                <option value="{{ food.id }}">{{ food.name }} ({{ food.calories }} Kcal/unit)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small text-uppercase fw-bold ls-1 mb-2">Quantity</label>
+                            <input type="number" step="0.1" name="quantity" class="form-control" value="1.0" required>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                                <span class="me-1">➕</span> Add Log
+                            </button>
+                        </div>
+                    </form>
 
-        var calPercent = (calories / 2000) * 100;
-        document.querySelector(".progress-bar").style.width = calPercent + "%";
+                    <hr class="my-4 opacity-10">
 
-        // Chart.js Doughnut Chart
-        var ctx = document.getElementById("myChart").getContext("2d");
-        new Chart(ctx, {
-            type: "doughnut",
-            data: {
-                labels: ["Carbs", "Protein", "Fats"],
-                datasets: [{
-                    data: [carbs, protein, fats],
-                    backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-    </script>
+                    <h5 class="mb-3 d-flex align-items-center gap-2">
+                        <span class="opacity-75">📅</span> Logs for {{ selected_date }}
+                    </h5>
+
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead>
+                                <tr class="text-muted small text-uppercase fw-bold ls-1 border-bottom border-white-10">
+                                    <th class="ps-0 py-3">Food (Qty)</th>
+                                    <th class="text-center py-3"><span class="badge rounded-pill"
+                                            style="background: rgba(99, 102, 241, 0.2); color: #818cf8;">C</span></th>
+                                    <th class="text-center py-3"><span class="badge rounded-pill"
+                                            style="background: rgba(16, 185, 129, 0.2); color: #34d399;">P</span></th>
+                                    <th class="text-center py-3"><span class="badge rounded-pill"
+                                            style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">F</span></th>
+                                    <th class="text-center py-3">Kcal</th>
+                                    <th class="text-end pe-0 py-3">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in consumed_food %}
+                                <tr class="border-bottom border-white-05 hover-row transition">
+                                    <td class="ps-0 py-3">
+                                        <div class="fw-bold text-dark mb-0">{{ item.food_consumed.name }}</div>
+                                        <div class="small text-muted">{{ item.quantity }} units</div>
+                                    </td>
+                                    <td class="text-center text-muted">{{ item.food_consumed.carbs }}g</td>
+                                    <td class="text-center text-muted">{{ item.food_consumed.protein }}g</td>
+                                    <td class="text-center text-muted">{{ item.food_consumed.fats }}g</td>
+                                    <td class="text-center fw-bold text-dark">{{ item.food_consumed.calories }}</td>
+                                    <td class="text-end pe-0">
+                                        <a href="{% url 'delete' item.id %}"
+                                            class="btn btn-sm rounded-circle delete-btn-hover"
+                                            style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); text-decoration: none;">
+                                            ✕
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-5">
+                                        <div class="opacity-50 mb-2" style="font-size: 2rem;">🍽️</div>
+                                        No entries found for this date.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="col-lg-5">
+                <div class="glass-card p-4 animate-up mb-4" style="animation-delay: 0.6s;">
+                    <h5 class="mb-4 d-flex align-items-center gap-2" style="font-weight: 800; color: #064e3b;">
+                        <span>📊</span> Nutrient Distribution
+                    </h5>
+                    <div style="height: 300px;">
+                        <canvas id="nutrientChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="glass-card p-4 animate-up mb-4" style="animation-delay: 0.7s;">
+                    <h5 class="mb-4 d-flex align-items-center gap-2" style="font-weight: 800; color: #064e3b;">
+                        <span>📈</span> Weekly Calorie Trend
+                    </h5>
+                    <div style="height: 300px;">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modals -->
+            <!-- Goal Modal -->
+            <div class="modal fade" id="goalModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content glass-card p-4 border-0">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0 fw-bold">Personal Nutrition Goals</h5>
+                            <button type="button" class="btn-close " data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <form action="{% url 'update_goal' %}" method="POST" id="goalForm">
+                            {% csrf_token %}
+
+                            <div class="mb-4">
+                                <label class="form-label small text-uppercase fw-bold ls-1">Daily Calorie
+                                    Target</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-end-0 text-muted">🔥</span>
+                                    <input type="number" name="calorie_goal" class="form-control border-start-0 ps-0"
+                                        value="{{ profile.calorie_goal }}" required>
+                                    <span
+                                        class="input-group-text bg-transparent border-start-0 text-muted small">Kcal</span>
+                                </div>
+                            </div>
+
+                            <div class="macro-config-box p-3 rounded-4 mb-4"
+                                style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <label class="form-label small text-uppercase fw-bold ls-1 mb-0">Macro
+                                        Split
+                                        (%)</label>
+                                    <span id="macroTotal" class="badge rounded-pill bg-primary">Total: 100%</span>
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-4">
+                                        <label class="small text-dark mb-1 d-block text-center">Carbs</label>
+                                        <input type="number" name="carbs_goal_pct"
+                                            class="form-control text-center macro-input" data-color="#6366f1"
+                                            value="{{ profile.carbs_goal_pct }}" required>
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="small text-dark mb-1 d-block text-center">Protein</label>
+                                        <input type="number" name="protein_goal_pct"
+                                            class="form-control text-center macro-input" data-color="#10b981"
+                                            value="{{ profile.protein_goal_pct }}" required>
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="small text-dark mb-1 d-block text-center">Fats</label>
+                                        <input type="number" name="fats_goal_pct"
+                                            class="form-control text-center macro-input" data-color="#f59e0b"
+                                            value="{{ profile.fats_goal_pct }}" required>
+                                    </div>
+                                </div>
+
+                                <!-- Visual Macro Bar -->
+                                <div class="mt-4">
+                                    <div class="progress rounded-pill bg-dark" style="height: 12px !important;">
+                                        <div id="bar-carbs" class="progress-bar"
+                                            style="background-color: #6366f1 !important;">
+                                        </div>
+                                        <div id="bar-protein" class="progress-bar"
+                                            style="background-color: #10b981 !important;"></div>
+                                        <div id="bar-fats" class="progress-bar"
+                                            style="background-color: #f59e0b !important;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="macroAlert" class="alert alert-danger py-2 small d-none">
+                                ⚠️ Total percentage must equal 100%
+                            </div>
+
+                            <button type="submit" id="saveGoalBtn"
+                                class="btn btn-primary w-100 py-3 mt-2 fw-bold rounded-4 shadow-lg border-0">
+                                Update Configuration
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Food Modal -->
+            <div class="modal fade" id="customFoodModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content glass-card p-4 border-0">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0 fw-bold">Create New Food Item</h5>
+                            <button type="button" class="btn-close " data-bs-dismiss="modal"></button>
+                        </div>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="add_custom_food" value="1">
+                            <div class="mb-3">
+                                <label class="form-label small text-uppercase fw-bold ls-1">Food Name</label>
+                                <input type="text" name="name" class="form-control" placeholder="e.g. Avocado Toast"
+                                    required>
+                            </div>
+                            <div class="row g-3 mb-4">
+                                <div class="col-6">
+                                    <label class="form-label small text-uppercase fw-bold ls-1">Calories
+                                        (Kcal)</label>
+                                    <input type="number" name="calories" class="form-control" placeholder="0" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small text-uppercase fw-bold ls-1">Carbs
+                                        (g)</label>
+                                    <input type="number" step="0.1" name="carbs" class="form-control" placeholder="0.0"
+                                        required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small text-uppercase fw-bold ls-1">Protein
+                                        (g)</label>
+                                    <input type="number" step="0.1" name="protein" class="form-control"
+                                        placeholder="0.0" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small text-uppercase fw-bold ls-1">Fats
+                                        (g)</label>
+                                    <input type="number" step="0.1" name="fats" class="form-control" placeholder="0.0"
+                                        required>
+                                </div>
+                            </div>
+                            <button type="submit"
+                                class="btn btn-primary w-100 py-3 fw-bold rounded-4 shadow-lg border-0">
+                                Add to Library
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                // Data interpolation from Django
+                const cVal = {{ total_carbs| safe }};
+                const pVal = {{ total_protein| safe }};
+                const fVal = {{ total_fats| safe }};
+                const weeklyLabels = {{ weekly_labels| safe }};
+                const weeklyIntake = {{ weekly_intake| safe }};
+                const calGoal = {{ profile.calorie_goal| safe }};
+
+                // Common Chart Options
+                const commonOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#4b5563',
+                                font: { family: 'Inter', weight: '700', size: 12 },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            titleColor: '#064e3b',
+                            bodyColor: '#4b5563',
+                            borderColor: 'rgba(16, 185, 129, 0.2)',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 10,
+                            displayColors: true
+                        }
+                    }
+                };
+
+                // 1. Nutrient Distribution Chart
+                const nutrientCtx = document.getElementById('nutrientChart').getContext('2d');
+                new Chart(nutrientCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Carbs', 'Protein', 'Fats'],
+                        datasets: [{
+                            data: [cVal, pVal, fVal],
+                            backgroundColor: ['#10b981', '#6366f1', '#f59e0b'],
+                            borderWidth: 8,
+                            borderColor: '#ffffff',
+                            hoverOffset: 20
+                        }]
+                    },
+                    options: {
+                        ...commonOptions,
+                        cutout: '75%',
+                    }
+                });
+
+                // 2. Weekly Progress Chart
+                const progressCtx = document.getElementById('progressChart').getContext('2d');
+                new Chart(progressCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: weeklyLabels,
+                        datasets: [{
+                            label: 'Calories',
+                            data: weeklyIntake,
+                            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                            borderColor: '#10b981',
+                            borderWidth: 2,
+                            borderRadius: 12,
+                            barThickness: 25,
+                        }, {
+                            label: 'Daily Target',
+                            data: weeklyLabels.map(() => calGoal),
+                            type: 'line',
+                            borderColor: '#ef4444',
+                            borderDash: [6, 4],
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0.1,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        ...commonOptions,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(0,0,0,0.05)' },
+                                ticks: { color: '#94a3b8', font: { weight: '600' } }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#4b5563', font: { weight: '700' } }
+                            }
+                        }
+                    }
+                });
+
+                // Live Macro Update Logic
+                const macroInputs = document.querySelectorAll('.macro-input');
+                const macroTotalBadge = document.getElementById('macroTotal');
+                const saveBtn = document.getElementById('saveGoalBtn');
+
+                function updateMacroBars() {
+                    let total = 0;
+                    macroInputs.forEach(input => {
+                        const val = parseInt(input.value) || 0;
+                        total += val;
+                        const barId = 'bar-' + input.name.split('_')[0];
+                        const bar = document.getElementById(barId);
+                        if (bar) bar.style.width = val + '%';
+                    });
+
+                    macroTotalBadge.textContent = `Total: ${total}%`;
+                    if (total !== 100) {
+                        macroTotalBadge.className = 'badge rounded-pill bg-danger shadow-sm';
+                        saveBtn.disabled = true;
+                    } else {
+                        macroTotalBadge.className = 'badge rounded-pill bg-success shadow-sm';
+                        saveBtn.disabled = false;
+                    }
+                }
+
+                macroInputs.forEach(input => input.addEventListener('input', updateMacroBars));
+                updateMacroBars();
+
+                // Auto-close toasts
+                setTimeout(() => {
+                    document.querySelectorAll('.toast').forEach(t => t.classList.remove('show'));
+                }, 4000);
+            </script>
 </body>
+
 </html>
