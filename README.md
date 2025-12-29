@@ -1,17 +1,26 @@
 # 🥗 Modern Calorie Tracker - Premium Health Analytics Platform
 
-[![Django](https://img.shields.io/badge/Django-6.0-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![Django](https://img.shields.io/badge/Django-5.1-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952b3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
 [![Chart.js](https://img.shields.io/badge/Chart.js-4.x-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)](https://www.chartjs.org/)
-[![Python](https://img.shields.io/badge/Python-3.14-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE.txt)
 
-A state-of-the-art, personalized nutrition tracking application with **automatic BMR/TDEE calculation**, real-time macro targeting, and premium data visualization. Built as a production-ready MCA final year project demonstrating advanced full-stack development.
+A state-of-the-art, personalized nutrition tracking application with **automatic BMR/TDEE calculation**, real-time macro targeting, and premium data visualization. Built as a production-ready MCA final year project demonstrating advanced full-stack development with Django.
 
 ---
 
 ## ✨ Project Overview
 
 The **Modern Calorie Tracker** is a comprehensive health analytics platform that combines clinical nutrition science with modern web technologies. Unlike basic calorie counters, this application provides **personalized nutrition targets** based on your unique health metrics using the **Mifflin-St Jeor equation** - the gold standard in metabolic rate calculation.
+
+### 🎯 What Makes This Special?
+
+- **Science-Based**: Uses clinically validated BMR/TDEE formulas
+- **Personalized**: Tailored nutrition targets based on your goals
+- **Real-Time**: Instant calculations and visual feedback
+- **Beautiful**: Premium dual-theme UI with glassmorphism effects
+- **Secure**: Complete user authentication and data isolation
 
 ---
 
