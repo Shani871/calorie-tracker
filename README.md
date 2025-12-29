@@ -59,55 +59,97 @@ The **Modern Calorie Tracker** is a comprehensive health analytics platform that
 
 ## 🛠️ Technology Stack
 
-| Layer | Technology | Purpose |
-| :--- | :--- | :--- |
-| **Backend** | Python 3.14, Django 6.0 | Server-side logic, ORM, authentication |
-| **Database** | SQLite3 | Lightweight, file-based data storage |
-| **Frontend Framework** | Bootstrap 5.3 | Responsive grid and components |
-| **Forms** | Django Crispy Forms | Enhanced form rendering and validation |
-| **Data Visualization** | Chart.js 4.x | Interactive charts and graphs |
-| **Styling** | Custom CSS (Glassmorphism) | Premium visual design |
-| **Fonts** | Google Fonts (Inter) | Modern, professional typography |
+| Layer | Technology | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Backend** | Django | 5.1+ | Server-side logic, ORM, authentication |
+| **Language** | Python | 3.8+ | Core programming language |
+| **Database** | SQLite3 | Built-in | Lightweight, file-based data storage |
+| **Frontend Framework** | Bootstrap | 5.3 | Responsive grid and components |
+| **Forms** | Django Crispy Forms | Latest | Enhanced form rendering and validation |
+| **Form Templates** | Crispy Bootstrap5 | Latest | Bootstrap 5 template pack |
+| **Data Visualization** | Chart.js | 4.x | Interactive charts and graphs |
+| **Styling** | Custom CSS | - | Glassmorphism and modern effects |
+| **Fonts** | Google Fonts (Inter) | - | Modern, professional typography |
 
 ---
 
 ## 🔧 Installation & Setup
 
 ### Prerequisites
-- Python 3.8 or higher
-- pip package manager
-- Git (for cloning)
+- **Python** 3.8 or higher
+- **pip** package manager
+- **Git** (for cloning the repository)
+- **Virtual environment** (recommended)
 
-### Quick Start
+### Quick Start Guide
+
+#### 1. Clone the Repository
 ```bash
-# Clone the repository
 git clone https://github.com/Shani871/calorie-tracker.git
 cd calorie-tracker
+```
 
-# Create and activate virtual environment
+#### 2. Set Up Virtual Environment
+```bash
+# Create virtual environment
 python3 -m venv venv
-source venv/bin/activate  # MacOS/Linux
-# venv\Scripts\activate   # Windows
 
-# Install dependencies
+# Activate virtual environment
+source venv/bin/activate          # MacOS/Linux
+venv\Scripts\activate             # Windows
+```
+
+#### 3. Install Dependencies
+```bash
+# Install required packages
 pip install django django-crispy-forms crispy-bootstrap5
 
-# Apply database migrations
+# Or create a requirements.txt with:
+# django>=5.0
+# django-crispy-forms>=2.0
+# crispy-bootstrap5>=0.7
+# Then run: pip install -r requirements.txt
+```
+
+#### 4. Database Setup
+```bash
+# Create database migrations
 python manage.py makemigrations
+
+# Apply migrations to create database tables
 python manage.py migrate
+```
 
-# Create a superuser (optional, for admin access)
+#### 5. Create Admin User (Optional)
+```bash
+# Create superuser for admin panel access
 python manage.py createsuperuser
+```
 
-# Run the development server
+#### 6. Run Development Server
+```bash
 python manage.py runserver
 ```
 
-### First-Time Usage
-1. Navigate to `http://127.0.0.1:8000/register/`
-2. Create your account
-3. Complete your health profile at `/profile/`
-4. Start logging your meals on the dashboard!
+The application will be available at `http://127.0.0.1:8000/`
+
+### 🎬 First-Time Usage
+
+1. **Register**: Navigate to `http://127.0.0.1:8000/register/` and create your account
+2. **Set Up Profile**: Complete your health profile at `/profile/` with:
+   - Gender, age, height, weight
+   - Activity level
+   - Health goal (weight loss, maintenance, or gain)
+3. **Add Foods**: Create your food library with nutritional information
+4. **Start Tracking**: Log your meals on the dashboard and watch your progress!
+
+### 🔑 Admin Panel Access
+
+Access the Django admin panel at `http://127.0.0.1:8000/admin/` with your superuser credentials to:
+- Manage users
+- View and edit food database
+- Monitor consumption logs
+- Manage user profiles
 
 ---
 
@@ -258,15 +300,34 @@ This project demonstrates:
 
 ## 📸 Screenshots
 
-### Dashboard (Light Theme)
-- Fresh, nature-inspired design
-- Weekly progress chart
-- Nutrient distribution visualization
+### 🏠 Dashboard (Light Theme)
+![Dashboard Preview](https://via.placeholder.com/800x500/e8f5e9/2e7d32?text=Dashboard+-+Light+Theme)
 
-### Profile Page (Dark Theme)
-- Premium glassmorphism UI
-- Real-time metric calculations
-- Interactive macro targets
+**Features:**
+- Fresh, nature-inspired design with mint/emerald palette
+- Weekly progress bar chart (7-day calorie trends)
+- Nutrient distribution doughnut chart
+- Real-time macro tracking
+- Food consumption log with date filtering
+
+### 👤 Profile Page (Dark Theme)
+![Profile Preview](https://via.placeholder.com/800x500/1a1a2e/9d4edd?text=Profile+-+Dark+Theme)
+
+**Features:**
+- Premium glassmorphism UI with purple gradients
+- Real-time BMR/TDEE calculations
+- Interactive macro target preview
+- Health metrics input with instant feedback
+- Goal-based nutrition recommendations
+
+### 🔐 Authentication Pages
+![Auth Preview](https://via.placeholder.com/800x500/ffffff/333333?text=Login+%26+Register)
+
+**Features:**
+- Clean, modern login/register forms
+- Django Crispy Forms integration
+- CSRF protection
+- User-friendly validation messages
 
 ---
 
@@ -317,12 +378,32 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
-## 📧 Contact
+## 📧 Contact & Support
 
 **Developer**: Shani Chauhan  
-**Project**: MCA Final Year  
-**GitHub**: [@Shani871](https://github.com/Shani871)
+**Project**: MCA Final Year Project  
+**GitHub**: [@Shani871](https://github.com/Shani871)  
+**Repository**: [calorie-tracker](https://github.com/Shani871/calorie-tracker)
+
+### 💬 Get Help
+- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/Shani871/calorie-tracker/issues)
+- **Discussions**: Ask questions in [GitHub Discussions](https://github.com/Shani871/calorie-tracker/discussions)
 
 ---
 
+## ⭐ Show Your Support
+
+If you found this project helpful, please consider:
+- Giving it a ⭐ on GitHub
+- Sharing it with others
+- Contributing to its development
+
+---
+
+<div align="center">
+
 **Built with ❤️ using Django, Bootstrap, and Chart.js**
+
+*Combining nutrition science with modern web development*
+
+</div>
